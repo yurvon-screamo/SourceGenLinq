@@ -46,7 +46,7 @@ IQueryable<Tester> testers = default!;
 
 testers = testers.Sort(new()
 {
-    { TesterSort.TesterProperty.IdProperty, SortMode.Asc },
-    { TesterSort.TesterProperty.CommentProperty, SortMode.Desc },
+    { MyTesterSorter.TesterProperty.IdProperty, SortMode.Asc },
+    { MyTesterSorter.TesterProperty.CommentProperty, SortMode.Desc },
 });
 ```
