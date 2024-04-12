@@ -4,14 +4,12 @@ Simple implementation of flexible parameterized sorting for IQuariable using Inc
 
 ## Usage
 
-> Tested on net8
-
-0. Install library:
+1. Install library:
 
 ```xml
   <ItemGroup>
-	<PackageReference Include="SourceGenLinq.Abstractions" Version="0.0.1" />
-	<PackageReference Include="SourceGenLinq.Generator" Version="0.0.1" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    <PackageReference Include="SourceGenLinq.Abstractions" Version="0.0.5" />
+    <PackageReference Include="SourceGenLinq.Generator" Version="0.0.5" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
   </ItemGroup>
 ```
 
@@ -36,17 +34,39 @@ public class QazWsx;
 
 ```csharp
 [SortQuariable<Tester>]
-public static partial class MyTesterSorter;
+public static class MyTesterSorter;
 ```
 
 3. Use:
 
 ```csharp
-IQueryable<Tester> testers = default!;
-
-testers = testers.Sort(new()
+IQueryable<Tester> testers = new Tester[]
 {
-    { MyTesterSorter.TesterProperty.IdProperty, SortMode.Asc },
-    { MyTesterSorter.TesterProperty.CommentProperty, SortMode.Desc },
-});
+  new()
+  {
+      Id = Guid.NewGuid(),
+      Name = "Test",
+      Comment = "Test",
+      Test = 22,
+  },
+  new()
+  {
+      Id = Guid.NewGuid(),
+      Name = "Test 2",
+      Comment = "Test 3",
+      Test = 100,
+  },
+}.AsQueryable();
+
+IQueryable<Tester> orderedTesters = testers.Sort([
+  new TesterSortInput()
+  {
+      Name = SortMode.Asc,
+  },
+  new TesterSortInput()
+  {
+      Comment = SortMode.Asc,
+  },
+]);
+
 ```

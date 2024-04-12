@@ -4,8 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-    <Version>0.0.1</Version>
+    <LangVersion>12</LangVersion>
+    <Version>0.0.5</Version>
     <PackageId>SourceGenLinq.Abstractions</PackageId>
     <Title>SourceGenLinq.Abstractions</Title>
     <PackageReadmeFile>README.md</PackageReadmeFile>

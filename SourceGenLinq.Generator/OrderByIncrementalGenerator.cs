@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using System;
@@ -28,44 +28,47 @@ public class OrderByIncrementalGenerator : IIncrementalGenerator
 
             string identity = p.DataType;
 
-            string enumSource = string.Empty;
             string orderSource = string.Empty;
+            string orderTypeSource = string.Empty;
 
             foreach (string propertyName in p.PropertyNames)
             {
-                enumSource += $"\n      {propertyName}Property,";
+                orderTypeSource += $"\n     public global::SourceGenLinq.Abstractions.SortMode? {propertyName} {{ get; set; }}";
 
-                orderSource += $"\n                {identity}Property.{propertyName}Property when item.Value is SourceGenLinq.Abstractions.SortMode.Asc => sources.OrderBy(t => t.{propertyName}),";
-                orderSource += $"\n                {identity}Property.{propertyName}Property when item.Value is SourceGenLinq.Abstractions.SortMode.Desc => sources.OrderByDescending(t => t.{propertyName}),";
-                orderSource += '\n';
+                orderSource += $@"
+            if (input.{propertyName} is not null)
+            {{
+                if (input.{propertyName} is global::SourceGenLinq.Abstractions.SortMode.Asc) {{
+                    sources = sources.OrderBy(t => t.{propertyName});
+                }}
+                else 
+                {{
+                    sources = sources.OrderByDescending(t => t.{propertyName});
+                }}
+
+                continue;
+            }}
+";
             }
 
-            string source = @"using System;
-using System.Collections.Generic;
-using System.Linq;
-
-";
-            
-            source += p.NamespacePrefix == string.Empty
+            string source = p.NamespacePrefix == string.Empty
                 ? string.Empty
                 : $"namespace {p.NamespacePrefix};\n\n";
 
-            source += $@"public static partial class {identity}Sort
+            source += @$"
+public class {identity}SortInput {{
+{orderTypeSource}
+}}
+";
+
+            source += $@"
+public static partial class {identity}Sorter
 {{
-    public enum {identity}Property
-    {{{enumSource}
-    }}
-
-    public sealed class {identity}SortInput : Dictionary<{identity}Property, SourceGenLinq.Abstractions.SortMode>;
-
-    public static IQueryable<{identity}> Sort(this IQueryable<{identity}> sources, {identity}SortInput input)
+    public static global::System.Linq.IQueryable<{identity}> Sort(this global::System.Linq.IQueryable<{identity}> sources, global::System.Collections.Generic.IReadOnlyList<{identity}SortInput> inputs)
     {{
-        foreach (KeyValuePair<{identity}Property, SourceGenLinq.Abstractions.SortMode> item in input)
+        foreach ({identity}SortInput input in inputs)
         {{
-            sources = item.Key switch
-            {{{orderSource}
-                _ => throw new NotImplementedException(),
-            }};            
+            {orderSource}
         }}
 
         return sources;
@@ -88,13 +91,13 @@ using System.Linq;
         });
     }
 
-    static bool IsSyntaxTargetForGeneration(SyntaxNode node)
+    private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
     {
-        return node is ClassDeclarationSyntax classDeclaration && 
+        return node is ClassDeclarationSyntax classDeclaration &&
             classDeclaration.AttributeLists.Any();
     }
 
-    static Target GetSemanticTarget(GeneratorSyntaxContext context)
+    private static Target GetSemanticTarget(GeneratorSyntaxContext context)
     {
         if (context.Node is ClassDeclarationSyntax classDeclaration)
         {

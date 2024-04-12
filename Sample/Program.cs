@@ -1,6 +1,6 @@
-﻿using SourceGenLinq.Abstractions;
+using global::SourceGenLinq.Abstractions;
 
-using TesterSample;
+using global::TesterSample;
 
 Console.WriteLine("Hello, World!");
 
@@ -22,11 +22,12 @@ IQueryable<Tester> testers = new Tester[]
     },
 }.AsQueryable();
 
-IQueryable<Tester> orderedTesters = testers.Sort(new()
+System.Linq.IQueryable<Tester> orderedTesters = testers.Sort([
+new TesterSortInput()
 {
-    { TesterSort.TesterProperty.IdProperty, SortMode.Asc },
-    { TesterSort.TesterProperty.CommentProperty, SortMode.Desc },
-});
+    Name = SortMode.Asc,
+},
+]);
 
 Console.WriteLine();
 

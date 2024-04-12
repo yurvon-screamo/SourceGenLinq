@@ -3,20 +3,21 @@
   <PropertyGroup>
 	  <TargetFramework>netstandard2.0</TargetFramework>
 	  <Nullable>enable</Nullable>
-	  <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-	  <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-	  <IsRoslynComponent>true</IsRoslynComponent>
-	  <LangVersion>latest</LangVersion>
-      <Version>0.0.1</Version>
-      <PackageId>SourceGenLinq.Generator</PackageId>
-      <Title>SourceGenLinq.Generator</Title>
+	  <LangVersion>12</LangVersion>
+      <Version>0.0.5</Version>
+      <AnalyzerLanguage>cs</AnalyzerLanguage>
+      <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackBuildOutputs</TargetsForTfmSpecificContentInPackage>
+      <IncludeBuildOutput>false</IncludeBuildOutput>
+      <DevelopmentDependency>true</DevelopmentDependency>
+      <IncludeSymbols>false</IncludeSymbols>
+      <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+      <IsRoslynComponent>true</IsRoslynComponent>
+      
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <Description>Simple implementation of flexible parameterized sorting for IQuariable using IncrementalGenerator</Description>
       <PackageTags>linq;ef-core;ef;sort;order;code-gen;aot;</PackageTags>
       <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
       <RepositoryUrl>https://github.com/yurvon-screamo/SourceGenLinq</RepositoryUrl>
-      <IncludeSymbols>True</IncludeSymbols>
-      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -24,16 +25,19 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" PrivateAssets="all" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Remove="bin\Debug\netstandard2.0\\SourceGenLinq.Generator.dll" />
-	</ItemGroup>
+    <!-- for nuget publish -->
+    <Target Name="PackBuildOutputs" DependsOnTargets="SatelliteDllsProjectOutputGroup;DebugSymbolsProjectOutputGroup">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="$(TargetDir)\*.dll" PackagePath="analyzers\dotnet\cs" />
+            <TfmSpecificPackageFile Include="@(SatelliteDllsProjectOutputGroupOutput->'%(FinalOutputPath)')" PackagePath="analyzers\dotnet\cs\%(SatelliteDllsProjectOutputGroupOutput.Culture)\" />
+        </ItemGroup>
+    </Target>
 
-	<ItemGroup>
-		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-		<None Include="..\README.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-
+    <ItemGroup>
+        <None Include="..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+    
 </Project>
